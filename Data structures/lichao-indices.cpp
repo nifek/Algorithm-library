@@ -1,6 +1,10 @@
-#include <bits/stdc++.h>
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp>
+#ifdef LOCAL
+    #include <bits/include_all.h>
+#else
+    #include <bits/stdc++.h>
+    #include <ext/pb_ds/assoc_container.hpp>
+    #include <ext/pb_ds/tree_policy.hpp>
+#endif
 
 #pragma GCC target ("avx2")
 #pragma GCC optimize ("Ofast")
@@ -31,7 +35,7 @@ typedef pair<ll, ll> pll;
 const ll mod = 998244353;
 const ll base = 1e6 + 9;
 const ll inf = 1e18;
-const int MAX = 1e5 + 42;
+const int MAX = 2e5 + 42;
 const int LG = 20;
 
 random_device rd;
@@ -97,9 +101,9 @@ void solve() {
 }
 
 signed main() {
-    ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+    ios_base::sync_with_stdio(0); cin.tie(0);
     int ttt = 1;
-//    cin >> ttt;
+    cin >> ttt;
     while(ttt--) {
         solve();
     }

@@ -1,6 +1,10 @@
-#include <bits/stdc++.h>
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp>
+#ifdef LOCAL
+    #include <bits/include_all.h>
+#else
+    #include <bits/stdc++.h>
+    #include <ext/pb_ds/assoc_container.hpp>
+    #include <ext/pb_ds/tree_policy.hpp>
+#endif
 
 #pragma GCC target ("avx2")
 #pragma GCC optimize ("Ofast")
@@ -13,7 +17,7 @@
 #define sz(x) ((int) (x).size())
 #define pb push_back
 #define mp make_pair
-//#define int long long
+#define int long long
 
 using namespace std;
 using namespace __gnu_pbds;
@@ -23,14 +27,15 @@ template <typename T> inline bool umin(T &a, const T &b) { if(a > b) { a = b; re
 template <typename T> inline bool umax(T &a, const T &b) { if(a < b) { a = b; return 1; } return 0; }
 
 typedef long long ll;
+typedef unsigned long long ull;
 typedef long double ld;
 typedef pair<int, int> pii;
 typedef pair<ll, ll> pll;
 
-const ll mod = 1e9 + 7;
+const ll mod = 998244353;
 const ll base = 1e6 + 9;
-const ll inf = 1e9;
-const int MAX = 5e5 + 42;
+const ll inf = 1e18;
+const int MAX = 2e5 + 42;
 const int LG = 20;
 
 random_device rd;
@@ -100,9 +105,9 @@ void solve() {
 }
 
 signed main() {
-    ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+    ios_base::sync_with_stdio(0); cin.tie(0);
     int ttt = 1;
-//    cin >> ttt;
+    cin >> ttt;
     while(ttt--) {
         solve();
     }
