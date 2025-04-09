@@ -1,6 +1,10 @@
-#include <bits/stdc++.h>
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp>
+#ifdef LOCAL
+    #include <bits/include_all.h>
+#else
+    #include <bits/stdc++.h>
+    #include <ext/pb_ds/assoc_container.hpp>
+    #include <ext/pb_ds/tree_policy.hpp>
+#endif
 
 #pragma GCC target ("avx2")
 #pragma GCC optimize ("Ofast")
@@ -31,173 +35,219 @@ typedef pair<ll, ll> pll;
 const ll mod = 998244353;
 const ll base = 1e6 + 9;
 const ll inf = 1e18;
-const int MAX = 5e5 + 42;
+const int MAX = 2e5 + 42;
 const int LG = 20;
 
 random_device rd;
 mt19937 gen(rd());
 uniform_int_distribution<ll> dis(1, inf);
 
+constexpr int calculate_phi(int n) {
+    if(n == 998244353 || n == 1000000007) return n - 1;
+    int ans = n;
+    for(int i = 2; i * i <= n; i++) {
+        if(n % i == 0) {
+            ans /= i; ans *= i - 1; while(n % i == 0) n /= i;
+        }
+    }
+    if(n > 1) ans /= n, ans *= n - 1;
+    return ans;
+}
+
+// 7340033 = 1 (mod 2^20), 3
+// 998244353 = 1 (mod 2^23), 3
+// 167772161 = 1 (mod 2^25), 3
+// 469762049 = 1 (mod 2^26), 3
+// 2013265921 = 1 (mod 2^27), 31
 class Mint {
-    ///all modulo 998244353
-    static const int phi_minus_one = mod - 2;
+public:
+    // All modulo 998244353
+    static constexpr int phi_minus_one = calculate_phi(mod) - 1;
     static const int square_root = sqrt(mod);
     static const int primitive_root = 3;
-    public:
-        int x;
+    int x;
 
-    public:
-        void norm() {
-            x %= mod;
-            if(x < 0) x += mod;
+public:
+    void norm() {
+        x %= mod;
+        if(x < 0) x += mod;
+    }
+    Mint(int a, bool small) {
+        x = a;
+        if(x >= mod) x -= mod;
+        if(x < 0) x += mod;
+    }
+    Mint() { x = 0; }
+    Mint(long long a) {
+        if(a >= mod || a <= -mod) a %= mod;
+        x = a;
+        if(x < 0) x += mod;
+    }
+    Mint(const Mint &b) { x = b.x; }
+    friend ostream &operator <<(ostream &out, const Mint &a) { out << a.x; return out; }
+    friend istream &operator >>(istream &in, Mint &a) { in >> a.x; return in; }
+    Mint operator +(const Mint &b) const & {
+        return Mint(x + b.x, 1);
+    }
+    Mint operator +(int a) const & {
+        return Mint(x + a, 1);
+    }
+    Mint operator -(const Mint &b) const & {
+        return Mint(x - b.x, 1);
+    }
+    Mint operator -(int a) const & {
+        return Mint(x - a, 1);
+    }
+    friend Mint operator -(const Mint &a) {
+        return Mint(mod - a);
+    }
+    Mint operator *(const Mint &b) const & {
+         return Mint(1LL * x * b.x);
+    }
+    Mint operator *(int a) const & {
+        return Mint(1LL * x * a);
+    }
+    Mint &operator +=(const Mint &b) {
+        x += b.x;
+        if(x >= mod) x -= mod;
+        return *this;
+    }
+    Mint &operator +=(int a) {
+        x += a;
+        if(x >= mod) x -= mod;
+        return *this;
+    }
+    Mint &operator -=(const Mint &b) {
+        x += mod - b.x;
+        if(x >= mod) x -= mod;
+        return *this;
+    }
+    Mint &operator -=(int a) {
+        x += mod - a;
+        if(x >= mod) x -= mod;
+        return *this;
+    }
+    Mint &operator *=(const Mint &b) {
+        x = (long long) x * b.x % mod;
+        return *this;
+    }
+    Mint &operator *=(int a) {
+        x = (long long) x * a % mod;
+        return *this;
+    }
+    Mint &operator /=(const Mint &b) {
+        x = (long long) x * b.inv().x % mod;
+        return *this;
+    }
+    Mint &operator /=(int a) {
+        x = (long long) x * Mint(a, 1).inv().x % mod;
+        return *this;
+    }
+    Mint &operator ++() {
+        if(++x == mod) x = 0;
+        return *this;
+    }
+    Mint operator ++(int32_t) {
+        Mint ans(*this);
+        if(++x == mod) x = 0;
+        return ans;
+    }
+    Mint &operator --() {
+        if(--x == -1) x = mod - 1;
+        return *this;
+    }
+    Mint operator --(int32_t) {
+        Mint ans(*this);
+        if(--x == -1) x = mod - 1;
+        return ans;
+    }
+    Mint bpow(long long n) const & {
+        Mint a(x);
+        Mint ans(1);
+        while(n) {
+            if(n & 1) ans *= a;
+            n >>= 1;
+            a *= a;
         }
-        Mint(int a, bool small) {
-            x = a;
-            if(x >= mod) x -= mod;
-            if(x < 0) x += mod;
-        }
-        Mint() { x = 0; }
-        Mint(ll a) {
-            x = a % mod;
-            if(x < 0) x += mod;
-        }
-        friend ostream &operator <<(ostream &out, const Mint &a) { out << a.x; return out; }
-        friend istream &operator >>(istream &in, Mint &a) { in >> a.x; return in; }
-        Mint operator +(const Mint &b) const {
-            return Mint(x + b.x, 1);
-        }
-        Mint operator +(int a) {
-            return Mint(x + a, 1);
-        }
-        Mint operator -(const Mint &b) const {
-            return Mint(x - b.x, 1);
-        }
-        Mint operator -(int a) {
-            return Mint(x - a, 1);
-        }
-        friend Mint operator -(Mint a) {
-            return Mint(mod - a);
-        }
-        Mint operator *(const Mint &b) const {
-             return Mint(1LL * x * b.x);
-        }
-        Mint operator *(int a) {
-            return Mint(1LL * x * a);
-        }
-        Mint& operator +=(const Mint &b) {
-            x += b.x;
-            if(x >= mod) x -= mod;
-            return *this;
-        }
-        Mint& operator +=(int a) {
-            x += a;
-            if(x >= mod) x -= mod;
-            return *this;
-        }
-        Mint& operator -=(Mint b) {
-            x += mod - b.x;
-            if(x >= mod) x -= mod;
-            return *this;
-        }
-        Mint& operator -=(int a) {
-            x += mod - a;
-            if(x >= mod) x -= mod;
-            return *this;
-        }
-        Mint& operator *=(Mint b) {
-            x = (ll) x * b.x % mod;
-            return *this;
-        }
-        Mint& operator *=(int a) {
-            x = (ll) x * a % mod;
-            return *this;
-        }
-        Mint& operator ++() {
-            if(++x == mod) x = 0;
-            return *this;
-        }
-        Mint bpow(ll n) {
-            Mint a(x);
-            Mint ans(1);
-            while(n) {
-                if(n & 1) ans *= a;
-                n >>= 1;
-                a *= a;
+        return ans;
+    }
+    Mint inv() const & {
+        return bpow(phi_minus_one);
+    }
+    Mint operator /(const Mint &b) const & {
+        return b.inv() * x;
+    }
+    Mint operator /(int a) const & {
+        return Mint(a, 1).inv() * x;
+    }
+    friend Mint operator -(int a, const Mint &b) {
+        Mint res(b - a);
+        res.x = mod - res.x;
+        if(res.x == mod) res.x = 0;
+        return res;
+    }
+    friend Mint operator +(int a, const Mint &b) {
+        return Mint(b + a);
+    }
+    friend Mint operator *(int a, const Mint &b) {
+        return Mint(b * a);
+    }
+    friend Mint operator /(int a, const Mint &b) {
+        return Mint(a, 1) * b.inv();
+    }
+    Mint &operator=(const Mint &b) {
+        x = b.x;
+        return *this;
+    }
+    bool operator==(int a) const & {
+        return (x == a);
+    }
+    bool operator!=(int a) const & {
+        return (x != a);
+    }
+    bool operator==(const Mint &b) const & {
+        return (x == b.x);
+    }
+    bool operator!=(const Mint &b) const & {
+        return (x != b.x);
+    }
+    friend bool operator==(int a, const Mint &b) {
+        return (b.x == a);
+    }
+    friend bool operator!=(int a, const Mint &b) {
+        return (b.x != a);
+    }
+
+    // Uses unordered map (!!!)
+    int log(const Mint &b) const & {
+        Mint a_pow = bpow(square_root);
+        Mint pw = a_pow;
+        std::unordered_map<int, int> used;
+        for(int p = 1; p <= square_root + 1; p++) used[a_pow.x] = p, a_pow *= pw;
+        a_pow = b;
+        for(int q = 0; q <= square_root; q++) {
+            if(used[a_pow.x]) {
+                int ans = used[a_pow.x] * square_root - q;
+                if(ans < mod) return ans;
             }
-            return ans;
+            a_pow *= x;
         }
-        Mint inv() {
-            return bpow(phi_minus_one);
-        }
-        Mint operator /(Mint b) {
-            return b.inv() * x;
-        }
-        Mint operator /(int a) {
-            return Mint(a, 1).inv() * x;
-        }
-        friend Mint operator -(int a, Mint b) {
-            Mint res(b - a);
-            res.x = mod - res.x;
-            if(res.x == mod) res.x = 0;
-            return res;
-        }
-        friend Mint operator +(int a, Mint b) {
-            return Mint(b + a);
-        }
-        friend Mint operator *(int a, Mint b) {
-            return Mint(b * a);
-        }
-        friend Mint operator /(int a, Mint b) {
-            return Mint(a, 1) * b.inv();
-        }
-        Mint operator =(Mint b) {
-            x = b.x;
-            return b;
-        }
-        bool operator ==(int a) {
-            return (x == a);
-        }
-        bool operator !=(int a) {
-            return !(x == a);
-        }
-        friend bool operator ==(int a, Mint b) {
-            return (b.x == a);
-        }
-        friend bool operator !=(int a, Mint b) {
-            return b.x != a;
-        }
+        return -1;
+    }
 
-        int log(Mint b) {
-            Mint a_pow = bpow(square_root);
-            Mint pw = a_pow;
-            std::unordered_map<int, int> used;
-            for(int p = 1; p <= square_root + 1; p++) used[a_pow.x] = p, a_pow *= pw;
-            a_pow = b;
-            for(int q = 0; q <= square_root; q++) {
-                if(used[a_pow.x]) {
-                    int ans = used[a_pow.x] * square_root - q;
-                    if(ans < mod) return ans;
-                }
-                a_pow *= x;
-            }
-            return -1;
-        }
-
-        int root(ll k) {
-            Mint p = Mint(primitive_root).bpow(k);
-            int logarithm = p.log(x);
-            if(!~logarithm) return -1;
-            return Mint(primitive_root).bpow(logarithm).x;
-        }
+    int root(long long k) const & {
+        Mint p = Mint(primitive_root).bpow(k);
+        int logarithm = p.log(x);
+        if(!~logarithm) return -1;
+        return Mint(primitive_root).bpow(logarithm).x;
+    }
 };
 
 namespace polynomials {
-    const Mint primitive_root = 3;
-    const Mint primitive_root_pow = 15311432;
-    const Mint inverse_primitive_root_pow = 469870224;
+    const Mint primitive_root = Mint::primitive_root;
     const int max_len = 1 << 23;
 
-    ///computes a(x) + b(x), O(n)
+    /// Computes a(x) + b(x), O(n)
     vector<Mint> add(const vector<Mint> &a, const vector<Mint> &b) {
         int n = a.size(), m = b.size();
         int siz = max(n, m);
@@ -209,7 +259,7 @@ namespace polynomials {
         return c;
     }
 
-    ///computes a(x) - b(x), O(n)
+    /// Computes a(x) - b(x), O(n)
     vector<Mint> sub(const vector<Mint> &a, const vector<Mint> &b) {
         int n = a.size(), m = b.size();
         int siz = max(n, m);
@@ -221,14 +271,14 @@ namespace polynomials {
         return c;
     }
 
-    ///computes x^i * k, O(n)
+    /// Computes x^i * k, O(n)
     vector<Mint> multiply(const vector<Mint> &a, Mint k) {
         vector<Mint> c = a;
         for(auto &i : c) i *= k;
         return c;
     }
 
-    ///computes the derivative of a(x) with [x^(n - 1)] a(x) = 0, O(n)
+    /// Computes the derivative of a(x) with [x^(n - 1)] a(x) = 0, O(n)
     vector<Mint> derivative(const vector<Mint> &a, int m = -1) {
         int n = a.size();
         if(~m) n = m;
@@ -238,7 +288,7 @@ namespace polynomials {
         return c;
     }
 
-    ///computes the integral of a(x) with a(0) = 0, O(n)
+    /// Computes the integral of a(x) with a(0) = 0, O(n)
     vector<Mint> integral(const vector<Mint> &a, int m = -1) {
         int n = a.size();
         if(~m) n = m;
@@ -251,7 +301,7 @@ namespace polynomials {
         return c;
     }
 
-    ///computes x^k / k!, O(n)
+    /// Computes x^k / k!, O(n)
     vector<Mint> egf(const vector<Mint> &a) {
         int n = a.size();
         vector<Mint> inv_fact(n);
@@ -261,7 +311,7 @@ namespace polynomials {
         return c;
     }
 
-    ///computes x^k * k!, O(n)
+    /// Computes x^k * k!, O(n)
     vector<Mint> ogf(const vector<Mint> &a) {
         int n = a.size();
         Mint fact = 1;
@@ -272,7 +322,7 @@ namespace polynomials {
 
     ///FFT source - https://codeforces.com/blog/entry/117947
     const long long mod2 = (long long) mod * mod;
-    const int32_t proot = 3;
+    const int32_t proot = Mint::primitive_root;
     const int32_t alim = 64; // Bound for using O(n^2) polynomial mult
 
     int32_t modpow(int32_t b, ll e) {
@@ -295,12 +345,16 @@ namespace polynomials {
 
     inline int32_t m_add(int32_t x, int32_t y) {
         int32_t z = x + y;
-        return z < 0 ? z + mod : z - mod;
+        if(z >= mod) z -= mod;
+        else if(z < 0) z += mod;
+        return z;
     }
 
     inline int32_t m_sub(int32_t x, int32_t y) {
         int32_t z = x - y;
-        return z < 0 ? z + mod : z - mod;
+        if(z >= mod) z -= mod;
+        else if(z < 0) z += mod;
+        return z;
     }
 
     inline int32_t m_mult(int32_t x, int32_t y) {
@@ -443,8 +497,8 @@ namespace polynomials {
         for(int32_t i = 0; i < n; ++i) {
             vector<unsigned long long> res(2 * a);
             for(int32_t j = 0; j < a; ++j) {
-                if(j >= 10 && j % 9 == 8) {
-                    for(int32_t k = j; k < j + a - 10; ++k) res[k] -= (res[k] >> 63) * 9 * mod2;
+                if(j >= 9 && j % 8 == 7) {
+                    for(int32_t k = j; k < j + a - 9; ++k) res[k] -= (res[k] >> 63) * 9 * mod2;
                 }
                 for(int32_t k = 0; k < a; ++k) res[j + k] += (long long) P[i * a + j] * Q[i * a + k];
             }
@@ -461,8 +515,8 @@ namespace polynomials {
         ptrs[x - 1](a, b);
     }
 
-    ///computes a(x) * b(x)
-    ///O(n log n), 151 ms for n = 5e5
+    /// Computes a(x) * b(x)
+    /// O(n log n), 151 ms for n = 5e5
     vector<Mint> multiply(const vector<Mint> &A, const vector<Mint> &B, int32_t M = -1) {
         int32_t m1 = A.size();
         int32_t m2 = B.size();
@@ -485,7 +539,7 @@ namespace polynomials {
         return C;
     }
 
-    ///computes 1 / a(x) or returns an empty vector if it does not exist
+    /// Computes 1 / a(x) or returns an empty vector if it does not exist
     ///O(n log n), 183 ms for n = 5e5
     vector<Mint> inverse(const vector<Mint> &a, int m = -1) {
         if(a[0] == 0) return {};
@@ -504,8 +558,8 @@ namespace polynomials {
         return c;
     }
 
-    ///computes log(a(x)) or returns an empty vector if it does not exist
-    ///O(n log n), 223 ms for n = 5e5
+    /// Computes log(a(x)) or returns an empty vector if it does not exist
+    /// O(n log n), 223 ms for n = 5e5
     vector<Mint> log(const vector<Mint> &a, int m = -1) {
         if(a[0] != 1) return {};
         int n = a.size();
@@ -514,8 +568,8 @@ namespace polynomials {
         return c;
     }
 
-    ///computes e^a(x) or returns an empty vector if it does not exist
-    ///O(n log n), 416 ms for n = 5e5
+    /// Computes e^a(x) or returns an empty vector if it does not exist
+    /// O(n log n), 416 ms for n = 5e5
     vector<Mint> exp(const vector<Mint> &a, int m = -1) {
         if(a[0] != 0) return {};
         int n = a.size();
@@ -532,22 +586,22 @@ namespace polynomials {
         return c;
     }
 
-    vector<Mint> pow_no_leading_zeros(const vector<Mint> &a, Mint k, int m = -1) {
+    vector<Mint> pow_no_leading_zeros(const vector<Mint> &a, long long k, int m = -1) {
         assert(a[0] != 0);
         int n = a.size();
         if(~m) n = m;
         Mint d = 1 / a[0];
         vector<Mint> b = a;
         for(auto &i : b) i *= d;
-        vector<Mint> c = exp(multiply(log(b, n), k), n);
-        d = (1 / d).bpow(k.x);
+        vector<Mint> c = exp(multiply(log(b, n), k % mod), n);
+        d = (1 / d).bpow(k);
         for(auto &i : c) i *= d;
         return c;
     }
 
-    ///computes a(x)^k
-    ///O(n log n), 577 ms for n = 5e5
-    vector<Mint> pow(const vector<Mint> &a, Mint k, int m = -1) {
+    /// Computes a(x)^k
+    /// O(n log n), 577 ms for n = 5e5
+    vector<Mint> pow(const vector<Mint> &a, long long k, int m = -1) {
         int n = a.size();
         if(~m) n = m;
         if(k == 0) {
@@ -556,52 +610,52 @@ namespace polynomials {
         }
         int cnt_leading_zeros = 0;
         while(cnt_leading_zeros < a.size() && a[cnt_leading_zeros] == 0) cnt_leading_zeros++;
-        if(cnt_leading_zeros == a.size() || (__int128) k.x * cnt_leading_zeros > n) return vector<Mint>(n, 0);
+        if(cnt_leading_zeros == a.size() || (__int128) k * cnt_leading_zeros > n) return vector<Mint>(n, 0);
         vector<Mint> b(a.size() - cnt_leading_zeros);
         for(int i = cnt_leading_zeros; i < a.size(); i++) b[i - cnt_leading_zeros] = a[i];
-        vector<Mint> c = pow_no_leading_zeros(b, k, a.size() - cnt_leading_zeros * k.x);
-        cnt_leading_zeros *= k.x;
+        vector<Mint> c = pow_no_leading_zeros(b, k, n - cnt_leading_zeros * k);
+        cnt_leading_zeros *= k;
         reverse(c.begin(), c.end()); while(cnt_leading_zeros--) c.push_back(0); reverse(c.begin(), c.end()); c.resize(n);
         return c;
     }
 
-    vector<Mint> root_no_leading_zeros(const vector<Mint> &a, Mint k, int m = -1) {
+    vector<Mint> root_no_leading_zeros(const vector<Mint> &a, long long k, int m = -1) {
         assert(a[0] != 0);
         int n = a.size();
         if(~m) n = m;
         Mint d = 1 / a[0];
         vector<Mint> b = a;
         for(auto &i : b) i *= d;
-        vector<Mint> c = exp(multiply(log(b, n), k.inv()), n);
+        vector<Mint> c = exp(multiply(log(b, n), Mint(k).inv()), n);
         d = d.inv();
-        int new_root = d.root(k.x);
+        int new_root = d.root(k);
         if(!~new_root) return vector<Mint>(0);
         d = new_root;
         for(auto &i : c) i *= d;
         return c;
     }
 
-    ///computes b(x) s.t. b(x)^k = a(x) or returns an empty vector if it does not exist
-    ///O(sqrt(mod) + n log n), 586 ms for n = 5e5
-    vector<Mint> root(const vector<Mint> &a, Mint k, int m = -1) {
+    /// Computes b(x) s.t. b(x)^k = a(x) or returns an empty vector if it does not exist
+    /// O(sqrt(mod) + n log n), 586 ms for n = 5e5
+    vector<Mint> root(const vector<Mint> &a, long long k, int m = -1) {
         assert(k != 0);
         int n = a.size();
         if(~m) n = m;
         int cnt_leading_zeros = 0;
         while(cnt_leading_zeros < a.size() && a[cnt_leading_zeros] == 0) cnt_leading_zeros++;
         if(cnt_leading_zeros == a.size()) return vector<Mint>(n, 0);
-        if(cnt_leading_zeros % k.x != 0) return vector<Mint>(0);
+        if(cnt_leading_zeros % k != 0) return vector<Mint>(0);
         vector<Mint> b(a.size() - cnt_leading_zeros);
         for(int i = cnt_leading_zeros; i < a.size(); i++) b[i - cnt_leading_zeros] = a[i];
-        vector<Mint> c = root_no_leading_zeros(b, k, n - cnt_leading_zeros / k.x);
+        vector<Mint> c = root_no_leading_zeros(b, k, n - cnt_leading_zeros / k);
         if(c.empty()) return c;
-        cnt_leading_zeros /= k.x;
+        cnt_leading_zeros /= k;
         reverse(c.begin(), c.end()); while(cnt_leading_zeros--) c.push_back(0); reverse(c.begin(), c.end()); c.resize(n);
         return c;
     }
 
-    ///computes the coefficients of a(x + C)
-    ///O(n log n), 120 ms for n = 5e5
+    /// Computes the coefficients of a(x + C)
+    /// O(n log n), 120 ms for n = 5e5
     vector<Mint> taylor_shift(const vector<Mint> &a, Mint C) {
         int n = a.size();
         vector<Mint> c = a; c = ogf(c); reverse(c.begin(), c.end());
@@ -619,9 +673,9 @@ void solve() {
 }
 
 signed main() {
-    ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+    ios_base::sync_with_stdio(0); cin.tie(0);
     int ttt = 1;
-//    cin >> ttt;
+    cin >> ttt;
     while(ttt--) {
         solve();
     }
