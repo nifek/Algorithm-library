@@ -10,13 +10,8 @@
 #pragma GCC optimize ("Ofast")
 #pragma GCC optimize ("unroll-loops")
 
-#define f first
-#define s second
 #define all(x) (x).begin(), (x).end()
 #define rall(x) (x).rbegin(), (x).rend()
-#define sz(x) ((int) (x).size())
-#define pb push_back
-#define mp make_pair
 #define int long long
 
 using namespace std;
@@ -27,16 +22,12 @@ template <typename T> inline bool umin(T &a, const T &b) { if(a > b) { a = b; re
 template <typename T> inline bool umax(T &a, const T &b) { if(a < b) { a = b; return 1; } return 0; }
 
 typedef long long ll;
-typedef unsigned long long ull;
 typedef long double ld;
 typedef pair<int, int> pii;
-typedef pair<ll, ll> pll;
 
 const ll mod = 998244353;
-const ll base = 1e6 + 9;
 const ll inf = 1e18;
 const int MAX = 2e5 + 42;
-const int LG = 20;
 
 random_device rd;
 mt19937 gen(rd());
@@ -52,7 +43,7 @@ vector<ll> cyclotomic(int n) {
     for(int i = 2; i <= n; i++) {
         if(n % i) continue;
         N *= i;
-        if(i > 2) primes.pb(i);
+        if(i > 2) primes.push_back(i);
         while(n % i == 0) n /= i;
     }
     int mult = was_n / N;
@@ -67,7 +58,7 @@ vector<ll> cyclotomic(int n) {
     }
     n = N;
     vector<ll> ans(phi + 1); ans[0] = 1;
-    int k = sz(primes);
+    int k = primes.size();
     for(int mask = 0; mask < (1 << k); mask++) {
         int p = 1;
         for(int i = 0; i < k; i++) {
@@ -85,7 +76,7 @@ vector<ll> cyclotomic(int n) {
     }
     if(even) {
         if(n > 1) {
-            for(int i = 0; i < sz(ans); i++) {
+            for(int i = 0; i < (int) ans.size(); i++) {
                 if(i & 1) ans[i] = -ans[i];
             }
         }
@@ -103,7 +94,7 @@ vector<vector<int>> factorization(int n, bool flag = 0) {
     vector<vector<int>> ans;
     for(int i = 1; i <= n; i++) {
         if(n % i == 0) {
-            if(i != 1 || !flag) ans.pb(cyclotomic(i));
+            if(i != 1 || !flag) ans.push_back(cyclotomic(i));
         }
     }
     return ans;
@@ -114,7 +105,7 @@ void solve() {
     cin >> n;
     auto ans = factorization(n);
     for(auto a : ans) {
-        int m = sz(a);
+        int m = a.size();
         cout << "(";
         for(int i = m - 1; ~i; i--) {
             if(a[i] == 0) continue;
