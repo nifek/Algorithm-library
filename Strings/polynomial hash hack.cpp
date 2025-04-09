@@ -1,6 +1,10 @@
-#include <bits/stdc++.h>
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp>
+#ifdef LOCAL
+    #include <bits/include_all.h>
+#else
+    #include <bits/stdc++.h>
+    #include <ext/pb_ds/assoc_container.hpp>
+    #include <ext/pb_ds/tree_policy.hpp>
+#endif
 
 #pragma GCC target ("avx2")
 #pragma GCC optimize ("Ofast")
@@ -28,10 +32,10 @@ typedef long double ld;
 typedef pair<int, int> pii;
 typedef pair<ll, ll> pll;
 
-ll mod = 1e9 + 7;
-ll base = 1e6 + 9;
+const ll mod = 998244353;
+const ll base = 1e6 + 9;
 const ll inf = 1e18;
-const int MAX = 3e5 + 42;
+const int MAX = 2e5 + 42;
 const int LG = 20;
 
 random_device rd;
@@ -117,7 +121,18 @@ ll compute_big_hash(const vector<int> &a) {
     return ans;
 }
 
+ll compute_overflow_hash(const vector<int> &a) {
+    ll ans = 0;
+    ll power = 1;
+    for(int i = 0; i < sz(a); i++) {
+        ans += power * a[i];
+        power *= base;
+    }
+    return ans;
+}
+
 ll compute_hash(const vector<ll> &a) {
+    if(mod == 0) return compute_overflow_hash(a);
     return (mod < (1ll << 31)? compute_small_hash(a) : compute_big_hash(a));
 }
 
@@ -137,10 +152,19 @@ pair<vector<int>, vector<int>> tree_attack(const vector<int> &alp, int p, int m)
     for(int k = 2;; k++) {
         int n = 1 << k;
         cout << "TRYING LEN " << n << endl;
+        vector<int> F(n), S(n);
+        for(int i = 0; i < n; i++) {
+            F[i] = dis(gen) % A;
+            S[i] = dis(gen) % A;
+            if(F[i] == S[i]) S[i]++;
+            if(S[i] == A) S[i] = 0;
+        }
         vector<pii> a(n);
         int pw = 1;
         for(int i = 0; i < n; i++) {
-            a[i] = {pw, i};
+            int val = alp[F[i]] - alp[S[i]];
+            if(val < 0) val += mod;
+            a[i] = {mult_long(pw, val), i};
             pw = mult_long(pw, base);
         }
         vector<int> c(n, 1);
@@ -156,9 +180,9 @@ pair<vector<int>, vector<int>> tree_attack(const vector<int> &alp, int p, int m)
                 }
                 vector<int> s(n), t(n);
                 for(int i = 0; i < n; i++) {
-                    if(ans[i] == 1) s[i] = 1, t[i] = 0;
-                    else if(ans[i] == -1) s[i] = 0, t[i] = 1;
-                    else s[i] = t[i] = 0;
+                    if(ans[i] == 1) s[i] = alp[F[i]], t[i] = alp[S[i]];
+                    else if(ans[i] == -1) s[i] = alp[S[i]], t[i] = alp[F[i]];
+                    else s[i] = t[i] = alp[F[i]];
                 }
                 return {s, t};
             }
@@ -176,6 +200,12 @@ pair<vector<int>, vector<int>> tree_attack(const vector<int> &alp, int p, int m)
         }
     }
 }
+
+/*
+26 2
+27 1000000007
+27 1000000000000000003
+*/
 
 vector<int> get_array(ull &seed, int n, const vector<int> &alp) {
     vector<int> a(n);
@@ -195,13 +225,13 @@ void get_next(ull &seed, int n, const vector<int> &alp) {
 
 //finds 2 arrays of the same size with the same hash using birthday paradox
 pair<vector<int>, vector<int>> birthday_attack(const vector<int> &alp, int p, int m) {
-    for(auto i : alp) assert(i < m);
+    for(auto i : alp) assert(i < m || m == 0);
     int A = sz(alp);
     base = p; mod = m;
     //computes sz such that we can safely guarantee a lot of collisions
     //if works too slowly you can adjust constant factor
     //also if sz is too small and you use bad randomization there is a good chance that you just find 2 same strings
-    int sz = 1.2 * log(mod) / log(A); umax(sz, 5ll);
+    int sz = (m != 0? 1.2 * log(mod) / log(A) : 18); umax(sz, 5ll);
     cerr << "USING SIZE = " << sz << endl;
     int COUNT = 0;
     for(int it = 1;; it++) {
@@ -210,6 +240,7 @@ pair<vector<int>, vector<int>> birthday_attack(const vector<int> &alp, int p, in
             COUNT++;
             get_next(x, sz, alp); get_next(x, sz, alp);
             get_next(y, sz, alp);
+            if(COUNT % 1000000 == 0) cout << "FINISHED " << COUNT << " ITERATIONS" << endl;
             if(x == y) break;
         }
         if(y == it) {
@@ -237,7 +268,7 @@ pair<vector<int>, vector<int>> birthday_attack(int A, int p, int m) {
 }
 
 pair<vector<int>, vector<int>> hack_single_hash(const vector<int> &a, int p, int m) {
-    if(m == 0) return Thue_Morse();
+    if(m == 0 && 0) return Thue_Morse();
     else if((ld) m <= 1e13) return birthday_attack(a, p, m);
     else return tree_attack(a, p, m);
 }
@@ -311,15 +342,14 @@ void solve() {
     cout << s << '\n'; cout << t << '\n';
     for(int i = 0; i < n; i++) {
         base = p[i]; mod = modulos[i];
-        if(mod == 0) continue;
         assert(compute_hash(a) == compute_hash(b));
     }
 }
 
 signed main() {
-    ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+    ios_base::sync_with_stdio(0); cin.tie(0);
     int ttt = 1;
-//    cin >> ttt;
+    cin >> ttt;
     while(ttt--) {
         solve();
     }
