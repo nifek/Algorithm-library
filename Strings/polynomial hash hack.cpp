@@ -10,13 +10,8 @@
 #pragma GCC optimize ("Ofast")
 #pragma GCC optimize ("unroll-loops")
 
-#define f first
-#define s second
 #define all(x) (x).begin(), (x).end()
 #define rall(x) (x).rbegin(), (x).rend()
-#define sz(x) ((int) (x).size())
-#define pb push_back
-#define mp make_pair
 #define int long long
 
 using namespace std;
@@ -30,13 +25,11 @@ typedef long long ll;
 typedef unsigned long long ull;
 typedef long double ld;
 typedef pair<int, int> pii;
-typedef pair<ll, ll> pll;
 
-const ll mod = 998244353;
-const ll base = 1e6 + 9;
+ll mod = 998244353;
+ll base = 1e6 + 9;
 const ll inf = 1e18;
 const int MAX = 2e5 + 42;
-const int LG = 20;
 
 random_device rd;
 mt19937 gen(rd());
@@ -102,7 +95,7 @@ ll sub(int a, int b) {
 int compute_small_hash(const vector<int> &a) {
     int ans = 0;
     int power = 1;
-    for(int i = 0; i < sz(a); i++) {
+    for(int i = 0; i < (int) a.size(); i++) {
         adds(ans, mult(power, a[i]));
         power = mult(power, base);
     }
@@ -114,7 +107,7 @@ int compute_small_hash(const vector<int> &a) {
 ll compute_big_hash(const vector<int> &a) {
     int ans = 0;
     int power = 1;
-    for(int i = 0; i < sz(a); i++) {
+    for(int i = 0; i < (int) a.size(); i++) {
         adds(ans, mult_long(power, a[i]));
         power = mult_long(power, base);
     }
@@ -124,7 +117,7 @@ ll compute_big_hash(const vector<int> &a) {
 ll compute_overflow_hash(const vector<int> &a) {
     ll ans = 0;
     ll power = 1;
-    for(int i = 0; i < sz(a); i++) {
+    for(int i = 0; i < (int) a.size(); i++) {
         ans += power * a[i];
         power *= base;
     }
@@ -147,7 +140,7 @@ pair<vector<int>, vector<int>> Thue_Morse() {
 }
 
 pair<vector<int>, vector<int>> tree_attack(const vector<int> &alp, int p, int m) {
-    int A = sz(alp);
+    int A = alp.size();
     base = p; mod = m;
     for(int k = 2;; k++) {
         int n = 1 << k;
@@ -172,8 +165,8 @@ pair<vector<int>, vector<int>> tree_attack(const vector<int> &alp, int p, int m)
         for(int i = 0; i < n; i++) vert[i] = {i};
         while(1) {
             sort(all(a));
-            if(a[0].f == 0) {
-                int idx = a[0].s;
+            if(a[0].first == 0) {
+                int idx = a[0].second;
                 vector<int> ans(n);
                 for(auto i : vert[idx]) {
                     ans[i] = c[i];
@@ -186,15 +179,15 @@ pair<vector<int>, vector<int>> tree_attack(const vector<int> &alp, int p, int m)
                 }
                 return {s, t};
             }
-            if(sz(a) == 1) break;
+            if((int) a.size() == 1) break;
             vector<pii> na;
-            int N = sz(a);
+            int N = (int) a.size();
             for(int i = 0; i < N; i += 2) {
-                int x = a[i].s;
-                int y = a[i + 1].s;
+                int x = a[i].second;
+                int y = a[i + 1].second;
                 for(auto j : vert[x]) c[j] *= -1;
-                for(auto j : vert[x]) vert[y].pb(j);
-                na.pb({a[i + 1].f - a[i].f, y});
+                for(auto j : vert[x]) vert[y].push_back(j);
+                na.push_back({a[i + 1].first - a[i].first, y});
             }
             a = na;
         }
@@ -210,7 +203,7 @@ pair<vector<int>, vector<int>> tree_attack(const vector<int> &alp, int p, int m)
 vector<int> get_array(ull &seed, int n, const vector<int> &alp) {
     vector<int> a(n);
     for(int i = 0; i < n; i++) {
-        a[i] = alp[next(seed, sz(alp))];
+        a[i] = alp[next(seed, alp.size())];
     }
     return a;
 }
@@ -218,7 +211,7 @@ vector<int> get_array(ull &seed, int n, const vector<int> &alp) {
 void get_next(ull &seed, int n, const vector<int> &alp) {
     vector<int> a(n);
     for(int i = 0; i < n; i++) {
-        a[i] = alp[next(seed, sz(alp))];
+        a[i] = alp[next(seed, alp.size())];
     }
     seed = compute_hash(a);
 }
@@ -226,7 +219,7 @@ void get_next(ull &seed, int n, const vector<int> &alp) {
 //finds 2 arrays of the same size with the same hash using birthday paradox
 pair<vector<int>, vector<int>> birthday_attack(const vector<int> &alp, int p, int m) {
     for(auto i : alp) assert(i < m || m == 0);
-    int A = sz(alp);
+    int A = alp.size();
     base = p; mod = m;
     //computes sz such that we can safely guarantee a lot of collisions
     //if works too slowly you can adjust constant factor
@@ -263,7 +256,7 @@ pair<vector<int>, vector<int>> birthday_attack(const vector<int> &alp, int p, in
 
 pair<vector<int>, vector<int>> birthday_attack(int A, int p, int m) {
     vector<int> a;
-    for(int i = 0; i < A; i++) a.pb(i);
+    for(int i = 0; i < A; i++) a.push_back(i);
     return birthday_attack(a, p, m);
 }
 
@@ -275,20 +268,20 @@ pair<vector<int>, vector<int>> hack_single_hash(const vector<int> &a, int p, int
 
 pair<vector<int>, vector<int>> hack_single_hash(int A, int p, int m) {
     vector<int> a;
-    for(int i = 0; i < A; i++) a.pb(i);
+    for(int i = 0; i < A; i++) a.push_back(i);
     return hack_single_hash(a, p, m);
 }
 
 pair<vector<int>, vector<int>> hack_multiple_modulos(const vector<int> &a, const vector<int> &p, const vector<int> &modulos) {
     auto [s, t] = hack_single_hash(a, p[0], modulos[0]);
-    int N = sz(p);
-    assert(N == sz(modulos));
+    int N = p.size();
+    assert(N == modulos.size());
     for(int i = 1; i < N; i++) {
         base = p[i]; mod = modulos[i];
         int h1 = compute_hash(s);
         int h2 = compute_hash(t);
         if(h1 == h2) continue;
-        base = 1; for(int j = 0; j < sz(s); j++) base = mult_long(base, p[i]);
+        base = 1; for(int j = 0; j < s.size(); j++) base = mult_long(base, p[i]);
         vector<int> b = {h1, h2};
         auto [x, y] = hack_single_hash(b, base, mod);
         vector<int> new_s, new_t;
@@ -307,21 +300,21 @@ pair<vector<int>, vector<int>> hack_multiple_modulos(const vector<int> &a, const
 
 pair<vector<int>, vector<int>> hack_multiple_modulos(int A, int p, const vector<int> &modulos) {
     vector<int> a;
-    for(int i = 0; i < A; i++) a.pb(i);
+    for(int i = 0; i < A; i++) a.push_back(i);
     vector<int> b;
-    for(int i = 0; i < sz(modulos); i++) b.pb(p);
+    for(int i = 0; i < modulos.size(); i++) b.push_back(p);
     return hack_multiple_modulos(a, b, modulos);
 }
 
 pair<vector<int>, vector<int>> hack_multiple_modulos(int A, const vector<int> &p, const vector<int> &modulos) {
     vector<int> a;
-    for(int i = 0; i < A; i++) a.pb(i);
+    for(int i = 0; i < A; i++) a.push_back(i);
     return hack_multiple_modulos(a, p, modulos);
 }
 
 string get_string(const vector<int> &a) {
     string ans;
-    for(auto i : a) ans.pb(char('a' + i));
+    for(auto i : a) ans.push_back(char('a' + i));
     return ans;
 }
 
@@ -349,7 +342,7 @@ void solve() {
 signed main() {
     ios_base::sync_with_stdio(0); cin.tie(0);
     int ttt = 1;
-    cin >> ttt;
+//    cin >> ttt;
     while(ttt--) {
         solve();
     }
