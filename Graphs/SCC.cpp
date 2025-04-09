@@ -10,13 +10,8 @@
 #pragma GCC optimize ("Ofast")
 #pragma GCC optimize ("unroll-loops")
 
-#define f first
-#define s second
 #define all(x) (x).begin(), (x).end()
 #define rall(x) (x).rbegin(), (x).rend()
-#define sz(x) ((int) (x).size())
-#define pb push_back
-#define mp make_pair
 #define int long long
 
 using namespace std;
@@ -27,16 +22,12 @@ template <typename T> inline bool umin(T &a, const T &b) { if(a > b) { a = b; re
 template <typename T> inline bool umax(T &a, const T &b) { if(a < b) { a = b; return 1; } return 0; }
 
 typedef long long ll;
-typedef unsigned long long ull;
 typedef long double ld;
 typedef pair<int, int> pii;
-typedef pair<ll, ll> pll;
 
 const ll mod = 998244353;
-const ll base = 1e6 + 9;
 const ll inf = 1e18;
 const int MAX = 2e5 + 42;
-const int LG = 20;
 
 random_device rd;
 mt19937 gen(rd());
@@ -55,7 +46,7 @@ void find_topsort(int v) {
     for(auto to : g[v]) {
         if(!used[to]) find_topsort(to);
     }
-    topological_sort.pb(v);
+    topological_sort.push_back(v);
 }
 
 void find_SCC(int v) {
@@ -72,7 +63,7 @@ void run_SCC() {
     for(int v = 0; v <= n; v++) adj[v].clear();
     for(int v = 1; v <= n; v++) {
         for(auto to : g[v]) {
-            rev[to].pb(v);
+            rev[to].push_back(v);
         }
     }
     fill(used, used + n + 1, 0);
@@ -96,7 +87,7 @@ void run_SCC() {
         for(auto to : g[v]) {
             if(comp[v] != comp[to] && !was[{comp[v], comp[to]}]) {
                 was[{comp[v], comp[to]}] = 1;
-                adj[comp[v]].pb(comp[to]);
+                adj[comp[v]].push_back(comp[to]);
             }
         }
     }

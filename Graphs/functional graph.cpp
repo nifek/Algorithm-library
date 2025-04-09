@@ -10,13 +10,8 @@
 #pragma GCC optimize ("Ofast")
 #pragma GCC optimize ("unroll-loops")
 
-#define f first
-#define s second
 #define all(x) (x).begin(), (x).end()
 #define rall(x) (x).rbegin(), (x).rend()
-#define sz(x) ((int) (x).size())
-#define pb push_back
-#define mp make_pair
 #define int long long
 
 using namespace std;
@@ -27,16 +22,12 @@ template <typename T> inline bool umin(T &a, const T &b) { if(a > b) { a = b; re
 template <typename T> inline bool umax(T &a, const T &b) { if(a < b) { a = b; return 1; } return 0; }
 
 typedef long long ll;
-typedef unsigned long long ull;
 typedef long double ld;
 typedef pair<int, int> pii;
-typedef pair<ll, ll> pll;
 
 const ll mod = 998244353;
-const ll base = 1e6 + 9;
 const ll inf = 1e18;
 const int MAX = 2e5 + 42;
-const int LG = 20;
 
 random_device rd;
 mt19937 gen(rd());
@@ -54,7 +45,7 @@ public:
     functional_graph() {}
 
     functional_graph(const vector<int> &A) {
-        n = sz(A);
+        n = A.size();
         a = A; a.insert(a.begin(), 0);
         g = vector<vector<int>>(n + 1);
         idx = vector<int>(n + 1, -1);
@@ -77,7 +68,7 @@ public:
             vector<int> curr;
             while(!used[j]) {
                 used[j] = 1;
-                curr.pb(j);
+                curr.push_back(j);
                 j = a[j];
             }
             int ind = 0;
@@ -87,7 +78,7 @@ public:
             siz[cnt_cycles++] = curr.size() - ind;
         }
         for(int i = 1; i <= n; i++) {
-            if(!~idx[i]) g[a[i]].pb(i);
+            if(!~idx[i]) g[a[i]].push_back(i);
         }
         for(int v = 1; v <= n; v++) {
             if(~idx[v]) {
